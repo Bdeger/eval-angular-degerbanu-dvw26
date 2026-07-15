@@ -21,12 +21,11 @@ export class Accueil {
     this.chargement();
   }
 
-  // on factorise la récupération du header d'authentification,
-  // pour ne pas le répéter dans chaque méthode
   private getAuthHeaders(): { [header: string]: string } {
     const jwt = localStorage.getItem('jwt');
     return jwt ? { Authorization: jwt } : {};
   }
+
   chargement() {
     const jwt = localStorage.getItem('jwt');
     if (jwt) {
@@ -38,33 +37,25 @@ export class Accueil {
     }
   }
 
-  sauvegarde() {
-    // const jsonCategories = JSON.stringify(this.categories);
-    // localStorage.setItem('categories', jsonCategories);
-  }
+  sauvegarde() {}
 
   onAjoutImage() {
     if (this.nouvelleUrlImage != '') {
       this.httpClient
         .post(
           'http://localhost:3000/ajout-image',
-          {
-            indexCategorie: 0,
-            urlImage: this.nouvelleUrlImage,
-          },
+          { indexCategorie: 0, urlImage: this.nouvelleUrlImage },
           { headers: this.getAuthHeaders() },
         )
         .subscribe({
-          next: () => this.chargement(), //quoi faire en cas de succes
+          next: () => this.chargement(),
           error: (erreur) => {
-            //quoi faire en cas d'erreur
             if (erreur.status === 409) {
               alert('Cette URL existe déjà dans la tier-list');
             }
             this.chargement();
           },
         });
-
       this.nouvelleUrlImage = '';
     }
   }
@@ -91,5 +82,31 @@ export class Accueil {
 
   onDebutDeplacement(indexCategorie: number, indexImage: number) {
     this.imageDeplace.set({ indexCategorie, indexImage });
+  }
+
+  onFinDeplacement(indexCategorieDestination: number) {
+    const image = this.imageDeplace();
+
+    if (image === null) return;
+
+    if (image.indexCategorie === indexCategorieDestination) {
+      this.imageDeplace.set(null);
+      return;
+    }
+
+    this.httpClient
+      .patch(
+        'http://localhost:3000/deplacement-image',
+        {
+          indexCategorie: image.indexCategorie,
+          indexImage: image.indexImage,
+          haut: indexCategorieDestination < image.indexCategorie,
+        },
+        { headers: this.getAuthHeaders() },
+      )
+      .subscribe(() => {
+        this.imageDeplace.set(null);
+        this.chargement();
+      });
   }
 }

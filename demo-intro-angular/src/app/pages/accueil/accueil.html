@@ -8,38 +8,42 @@
 
   <div class="liste-categories" [class.mode-deplacement]="imageDeplace() !== null">
     @for (categorie of categories(); track indexCategorie; let indexCategorie = $index) {
-      <div class="categorie">
+      <div class="categorie" (click)="onFinDeplacement(indexCategorie)">
         <div class="en-tete">
           <span>{{ categorie.titre }}</span>
         </div>
 
         <div class="images">
           @for (urlImage of categorie.images; track indexImage; let indexImage = $index) {
-            <!-- <img src="{{ urlImage }}" /> -->
             <div class="image">
               <img [attr.src]="urlImage" />
               <div
-                (click)="onSuppressionImage(indexCategorie, indexImage)"
+                (click)="onSuppressionImage(indexCategorie, indexImage); $event.stopPropagation()"
                 class="bouton bouton-supprimer"
               >
                 <span>x</span>
               </div>
               <div
-                (click)="onDebutDeplacement(indexCategorie, indexImage)"
+                (click)="onDebutDeplacement(indexCategorie, indexImage); $event.stopPropagation()"
                 class="bouton bouton-deplacer"
               >
                 <span>--|--</span>
               </div>
 
               @if (indexCategorie != 0) {
-                <div (click)="onDeplacement(indexCategorie, indexImage)" class="bouton bouton-haut">
+                <div
+                  (click)="onDeplacement(indexCategorie, indexImage); $event.stopPropagation()"
+                  class="bouton bouton-haut"
+                >
                   <span>+</span>
                 </div>
               }
 
               @if (indexCategorie < categories().length - 1) {
                 <div
-                  (click)="onDeplacement(indexCategorie, indexImage, false)"
+                  (click)="
+                    onDeplacement(indexCategorie, indexImage, false); $event.stopPropagation()
+                  "
                   class="bouton bouton-bas"
                 >
                   <span>-</span>

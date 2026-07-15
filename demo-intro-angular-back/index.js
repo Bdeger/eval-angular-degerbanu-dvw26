@@ -109,6 +109,29 @@ app.patch("/deplacement-image", jwtInterceptor, (req, res) => {
   res.status(200).send();
 });
 
+app.post("/ajout-categorie", jwtInterceptor, (req, res) => {
+  categories.push({ titre: req.body.titre, images: [] });
+  res.status(201).send();
+});
+
+app.patch("/deplacement-categorie", jwtInterceptor, (req, res) => {
+  const index = req.body.index;
+  const haut = req.body.haut;
+
+  const nouvelIndex = index + (haut ? -1 : 1);
+
+  if (nouvelIndex < 0 || nouvelIndex >= categories.length) {
+    return res.status(400).send();
+  }
+
+  // on échange les deux catégories
+  const temp = categories[index];
+  categories[index] = categories[nouvelIndex];
+  categories[nouvelIndex] = temp;
+
+  res.status(200).send();
+});
+
 app.listen(3000, () =>
   console.log("Le serveur est démarré sur le port 3000 !!!!!!"),
 );
